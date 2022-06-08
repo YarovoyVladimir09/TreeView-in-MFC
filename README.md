@@ -31,3 +31,7 @@
 -5:0:CAP12:1:MESSAGE-12
 
 Задание выполнено по стандарту С++17, в папке TestEx лежит два файла формата txt, для проверки работоспособности
+
+![image](https://user-images.githubusercontent.com/94742842/172691627-2f7ebcee-bca7-4428-9f98-45f4db1a34ad.png)
+
+
