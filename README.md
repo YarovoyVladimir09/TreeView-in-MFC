@@ -16,7 +16,7 @@
 
 Пример файла:
 
--0:\-1:CAP0:1:MESSAGE-0
+-0:(-1):CAP0:1:MESSAGE-0
 
 -1:0:CAP01:1:MESSAGE-01
 
