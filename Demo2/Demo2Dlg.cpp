@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(CDemo2Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_EN_UPDATE(IDC_EDIT_BROWSE, &CDemo2Dlg::OnUpdateEditBrowse)
+	ON_NOTIFY(NM_DBLCLK, IDC_TREE1, &CDemo2Dlg::OnNMDblclkTree1)
 END_MESSAGE_MAP()
 
 
@@ -159,12 +160,16 @@ HCURSOR CDemo2Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+//--------------------Реализация тестового задания-------------------
+
+// Функция избавляет объект класса string от пробелов по бокам 
 void Trim(std::string& word_to_clear) {
 	size_t start = word_to_clear.find_first_not_of(" ");
 	size_t end = word_to_clear.find_last_not_of(" ");
 	word_to_clear = word_to_clear.substr(start, end - start + 1);
 }
 
+// Функция выделяет необходимый для добавления элемент из строки
 std::string ParseInformation(std::string& info_to_parse) {
 	size_t start = info_to_parse.find_first_of(":");
 	std::string result = info_to_parse.substr(0, start);
@@ -173,6 +178,7 @@ std::string ParseInformation(std::string& info_to_parse) {
 	return result;
 }
 
+// Функция создает объекты класса TreeNode
 TreeNode MakeNodeFromString(std::string& node_info) {
 	TreeNode result;
 	result.id = stoi(ParseInformation(node_info));
@@ -184,6 +190,7 @@ TreeNode MakeNodeFromString(std::string& node_info) {
 
 }
 
+// Функция добавляет объекты класса TreeNode в контейнеры nodes_ и nodes_id
 void CDemo2Dlg::AddNode(std::string node_info) {
 	TreeNode* it = &nodes_.emplace_front(MakeNodeFromString(std::move(node_info)));// Стандарт С++17
 	if (nodes_id.count(it->id) == 0) {
@@ -192,39 +199,76 @@ void CDemo2Dlg::AddNode(std::string node_info) {
 		
 }
 
-void CDemo2Dlg::LoadInfoFromFile(std::string path_) {
+// Функция получает доступ к текстовому файлу, по заранее полученному пути.
+// После получения доступа к файлу, начинается построчное считывание файла
+// и создание объектов класса TreeNode
+bool CDemo2Dlg::LoadInfoFromFile(std::string path_) {
 	using namespace std;
 	ifstream in (path_);
 	string buffer;
+	int numb = 0;
 	while (getline(in, buffer)) {
-		Trim(buffer);
-		AddNode(std::move(buffer));
+		
+		numb = std::count(buffer.begin(), buffer.end(), ':');
+		if (numb == 4) {
+			Trim(buffer);
+			AddNode(std::move(buffer));
+		}
+		else {
+			return false;
+		}
 	}
+	return true;
 }
 
+// Функция создает элементы дерева в оконном приложении.
+// Если родительский класс равен -1, то элемент находится в корне
 void CDemo2Dlg::MakeTreeOnInitDialog() {
 	for (auto [id, tree] : nodes_id) {
 		CA2T wt(tree->caption.c_str());
 		if (tree->pid == -1) {
 			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt, TVI_ROOT, TVI_SORT);
+			point_to_tree_[tree_on_dial_.at(id)] = id;
 		}
 		else {
 			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt,
 				tree_on_dial_[tree->pid],
 				TVI_SORT);
+			point_to_tree_[tree_on_dial_.at(id)] = id;
 		}
 	}
 }
 
+// Функция вызывается при выборе пути в окне EditBrowseControl,
+// после чего читает выбранный файл и создает объекты класса TreeNode,
+// описанные в TreeNode.h. Последний этап работы функции - заполнение
+// элемента TreeControl в оконном приложении
 void CDemo2Dlg::OnUpdateEditBrowse()
 {
 	UpdateData(TRUE);
-	//m_ctrlPathInfo = m_ctrlPathEdit;
 	std::string out;
 	out = CT2CA(m_ctrlPathEdit.GetBuffer(0));
-	m_ctrlPathInfo = out.c_str();
-	LoadInfoFromFile(out);
-	MakeTreeOnInitDialog();
+
+	
+	if (LoadInfoFromFile(out)) {
+		MakeTreeOnInitDialog();
+		m_ctrlPathInfo = out.c_str();
+	}
+	else {
+		m_ctrlPathInfo = L" Ошибка - Неправильное количество \':\' в строке";
+	}
 	UpdateData(FALSE);
 
+}
+
+// Функция вызывается при двойном клике на элемент дерева
+// и вызывает MessageBox с полем message соответствующей ноды
+void CDemo2Dlg::OnNMDblclkTree1(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	HTREEITEM selectNode = (m_ctrlTree.GetSelectedItem());
+	if (selectNode == NULL) {
+		return;
+	}
+	CA2T out = nodes_id.at(point_to_tree_.at(selectNode))->message.c_str();
+	MessageBox(out);
 }

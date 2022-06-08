@@ -11,6 +11,7 @@
 #include <iostream>
 #include <deque>
 #include <unordered_map>
+#include <algorithm>
 
 
 // Диалоговое окно CDemo2Dlg
@@ -48,7 +49,7 @@ public:
 	CString m_ctrlPathEdit;
 	afx_msg void OnUpdateEditBrowse();
 	void AddNode(std::string node_info);
-	void LoadInfoFromFile(std::string path_);
+	bool LoadInfoFromFile(std::string path_);
 
 	void MakeTreeOnInitDialog();
 
@@ -56,7 +57,9 @@ private:
 	std::deque<TreeNode> nodes_;
 	std::unordered_map<int, TreeNode*> nodes_id;
 	std::unordered_map<int, HTREEITEM> tree_on_dial_;
+	std::unordered_map<HTREEITEM, int> point_to_tree_;
 public:
 	// переменная управления дерева
 	CTreeCtrl m_ctrlTree;
+	afx_msg void OnNMDblclkTree1(NMHDR* pNMHDR, LRESULT* pResult);
 };
