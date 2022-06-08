@@ -15,13 +15,14 @@
 По двойному щелчку должен выводиться Message Box, содержащий message из ноды
 
 Пример файла:
--0:-1:CAP0:1:MESSAGE-0
+
+-0:\-1:CAP0:1:MESSAGE-0
 
 -1:0:CAP01:1:MESSAGE-01
 
 -2:0:CAP02:0:MESSAGE-02
 
--3:-1:CAP1:1:MESSAGE-1
+-3:\-1:CAP1:1:MESSAGE-1
 
 -4:0:CAP11:1:MESSAGE-11
 
