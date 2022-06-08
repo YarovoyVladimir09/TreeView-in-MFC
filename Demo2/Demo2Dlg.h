@@ -48,18 +48,17 @@ public:
 	// Переменная Browse Control
 	CString m_ctrlPathEdit;
 	afx_msg void OnUpdateEditBrowse();
+	// переменная управления дерева
+	CTreeCtrl m_ctrlTree;
+	afx_msg void OnNMDblclkTree1(NMHDR* pNMHDR, LRESULT* pResult);
 	void AddNode(std::string node_info);
 	bool LoadInfoFromFile(std::string path_);
-
-	void MakeTreeOnInitDialog();
+	bool AddSingleTreeNode(int node_id);
+	bool MakeTreeOnInitDialog();
 
 private:
 	std::deque<TreeNode> nodes_;
 	std::unordered_map<int, TreeNode*> nodes_id;
 	std::unordered_map<int, HTREEITEM> tree_on_dial_;
 	std::unordered_map<HTREEITEM, int> point_to_tree_;
-public:
-	// переменная управления дерева
-	CTreeCtrl m_ctrlTree;
-	afx_msg void OnNMDblclkTree1(NMHDR* pNMHDR, LRESULT* pResult);
 };

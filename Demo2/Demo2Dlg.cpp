@@ -196,7 +196,6 @@ void CDemo2Dlg::AddNode(std::string node_info) {
 	if (nodes_id.count(it->id) == 0) {
 		nodes_id[it->id] = it;
 	}
-		
 }
 
 // Функция получает доступ к текстовому файлу, по заранее полученному пути.
@@ -221,22 +220,73 @@ bool CDemo2Dlg::LoadInfoFromFile(std::string path_) {
 	return true;
 }
 
+// Рекурсивная функция на случай, если нода объявлена раньше родителя
+bool CDemo2Dlg::AddSingleTreeNode(int node_id) {
+	TreeNode& node = *nodes_id.at(node_id);
+	CA2T wt(node.caption.c_str());
+	if (nodes_id.count(node.pid) != 0 && tree_on_dial_.count(node.pid) == 0) {
+		if (!AddSingleTreeNode(node.pid)) {
+			return false;
+		}
+		else {
+			if (node.pid == -1) {
+				tree_on_dial_[node_id] = m_ctrlTree.InsertItem(wt, TVI_ROOT, TVI_SORT);
+				point_to_tree_[tree_on_dial_.at(node_id)] = node_id;
+			}
+			else {
+				tree_on_dial_[node_id] = m_ctrlTree.InsertItem(wt,
+					tree_on_dial_[node.pid],
+					TVI_SORT);
+				point_to_tree_[tree_on_dial_.at(node_id)] = node_id;
+			}
+		}
+	}
+	else if (nodes_id.count(node.pid) != 0 && tree_on_dial_.count(node.pid) != 0) {
+		if (node.pid == -1) {
+			tree_on_dial_[node_id] = m_ctrlTree.InsertItem(wt, TVI_ROOT, TVI_SORT);
+			point_to_tree_[tree_on_dial_.at(node_id)] = node_id;
+		}
+		else {
+			tree_on_dial_[node_id] = m_ctrlTree.InsertItem(wt,
+				tree_on_dial_[node.pid],
+				TVI_SORT);
+			point_to_tree_[tree_on_dial_.at(node_id)] = node_id;
+		}
+	}
+	else if (nodes_id.count(node.pid) == 0) {
+		return false;
+	}
+
+	return true;
+}
+
 // Функция создает элементы дерева в оконном приложении.
 // Если родительский класс равен -1, то элемент находится в корне
-void CDemo2Dlg::MakeTreeOnInitDialog() {
+bool CDemo2Dlg::MakeTreeOnInitDialog() {
 	for (auto [id, tree] : nodes_id) {
 		CA2T wt(tree->caption.c_str());
-		if (tree->pid == -1) {
+		if (tree->pid == -1) {// Если родитель ноды имеет id = -1, то создается корневой объект
 			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt, TVI_ROOT, TVI_SORT);
 			point_to_tree_[tree_on_dial_.at(id)] = id;
 		}
 		else {
-			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt,
-				tree_on_dial_[tree->pid],
-				TVI_SORT);
-			point_to_tree_[tree_on_dial_.at(id)] = id;
+			if (nodes_id.count(tree->pid) == 0) {// Если родительской ноды нет среди всех созданных объектов класса TreeNode, функция завершается
+				return false;
+			}
+			else if (tree_on_dial_.count(tree->pid) == 0) {// Если родитель еще не добавлен в Tree Control, то запускаем рекурсивную функцию
+				if (!AddSingleTreeNode(id)) {// Если рекурсией не получилось найти родителя, то прекращаем работу функции и выводим ошибку
+					return false;
+				}
+			}
+			else if (tree_on_dial_.count(id) == 0 && tree_on_dial_.count(tree->pid) != 0) {// Если нода еще не добавлена в Tree Control, а родитель создан, создаем ноду
+				tree_on_dial_[id] = m_ctrlTree.InsertItem(wt,
+					tree_on_dial_[tree->pid],
+					TVI_SORT);
+				point_to_tree_[tree_on_dial_.at(id)] = id;
+			}
 		}
 	}
+	return true;
 }
 
 // Функция вызывается при выборе пути в окне EditBrowseControl,
@@ -251,11 +301,15 @@ void CDemo2Dlg::OnUpdateEditBrowse()
 
 	
 	if (LoadInfoFromFile(out)) {
-		MakeTreeOnInitDialog();
-		m_ctrlPathInfo = out.c_str();
+		if (!MakeTreeOnInitDialog()) {
+			m_ctrlPathInfo = L" Ошибка - Неcуществующий родительский id";
+		}
+		else {
+			m_ctrlPathInfo = L"Успешно!";
+		}
 	}
 	else {
-		m_ctrlPathInfo = L" Ошибка - Неправильное количество \':\' в строке";
+		m_ctrlPathInfo = L" Ошибка - Некорректный формат входных данных";
 	}
 	UpdateData(FALSE);
 
