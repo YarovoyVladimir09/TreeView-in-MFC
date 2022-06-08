@@ -50,9 +50,12 @@ public:
 	void AddNode(std::string node_info);
 	void LoadInfoFromFile(std::string path_);
 
+	void MakeTreeOnInitDialog();
+
 private:
 	std::deque<TreeNode> nodes_;
 	std::unordered_map<int, TreeNode*> nodes_id;
+	std::unordered_map<int, HTREEITEM> tree_on_dial_;
 public:
 	// переменная управления дерева
 	CTreeCtrl m_ctrlTree;

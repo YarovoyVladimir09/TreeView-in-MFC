@@ -202,6 +202,20 @@ void CDemo2Dlg::LoadInfoFromFile(std::string path_) {
 	}
 }
 
+void CDemo2Dlg::MakeTreeOnInitDialog() {
+	for (auto [id, tree] : nodes_id) {
+		CA2T wt(tree->caption.c_str());
+		if (tree->pid == -1) {
+			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt, TVI_ROOT, TVI_SORT);
+		}
+		else {
+			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt,
+				tree_on_dial_[tree->pid],
+				TVI_SORT);
+		}
+	}
+}
+
 void CDemo2Dlg::OnUpdateEditBrowse()
 {
 	UpdateData(TRUE);
@@ -210,6 +224,7 @@ void CDemo2Dlg::OnUpdateEditBrowse()
 	out = CT2CA(m_ctrlPathEdit.GetBuffer(0));
 	m_ctrlPathInfo = out.c_str();
 	LoadInfoFromFile(out);
+	MakeTreeOnInitDialog();
 	UpdateData(FALSE);
 
 }
