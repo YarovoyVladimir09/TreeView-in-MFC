@@ -223,7 +223,13 @@ bool CDemo2Dlg::LoadInfoFromFile(std::string path_) {
 // Рекурсивная функция на случай, если нода объявлена раньше родителя
 bool CDemo2Dlg::AddSingleTreeNode(int node_id) {
 	TreeNode& node = *nodes_id.at(node_id);
-	CA2T wt(node.caption.c_str());
+	std::string tree_data;
+	tree_data = node.caption;
+	if (!node.status) {
+		tree_data += " not active";
+	}
+	CA2T wt(tree_data.c_str());
+
 	if (nodes_id.count(node.pid) != 0 && tree_on_dial_.count(node.pid) == 0) {
 		if (!AddSingleTreeNode(node.pid)) {
 			return false;
@@ -263,10 +269,19 @@ bool CDemo2Dlg::AddSingleTreeNode(int node_id) {
 // Функция создает элементы дерева в оконном приложении.
 // Если родительский класс равен -1, то элемент находится в корне
 bool CDemo2Dlg::MakeTreeOnInitDialog() {
+
 	for (auto [id, tree] : nodes_id) {
-		CA2T wt(tree->caption.c_str());
+		
+		std::string tree_data;
+		tree_data = tree->caption;
+		if (!tree->status) {
+			tree_data +=" not active";
+		}
+		CA2T wt(tree_data.c_str());
+
 		if (tree->pid == -1) {// Если родитель ноды имеет id = -1, то создается корневой объект
-			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt, TVI_ROOT, TVI_SORT);
+
+			tree_on_dial_[id] = m_ctrlTree.InsertItem(wt,TVI_ROOT, TVI_SORT);		
 			point_to_tree_[tree_on_dial_.at(id)] = id;
 		}
 		else {
@@ -283,6 +298,7 @@ bool CDemo2Dlg::MakeTreeOnInitDialog() {
 					tree_on_dial_[tree->pid],
 					TVI_SORT);
 				point_to_tree_[tree_on_dial_.at(id)] = id;
+				
 			}
 		}
 	}
@@ -323,6 +339,8 @@ void CDemo2Dlg::OnNMDblclkTree1(NMHDR* pNMHDR, LRESULT* pResult)
 	if (selectNode == NULL) {
 		return;
 	}
-	CA2T out = nodes_id.at(point_to_tree_.at(selectNode))->message.c_str();
-	MessageBox(out);
+	if (nodes_id.at(point_to_tree_.at(selectNode))->status == true) {
+		CA2T out = nodes_id.at(point_to_tree_.at(selectNode))->message.c_str();
+		MessageBox(out);
+	}
 }
