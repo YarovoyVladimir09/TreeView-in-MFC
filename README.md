@@ -1,25 +1,24 @@
-Тестовое задание для ГОРЭЛТЕХа
+MFC-based windowed application
 
-Разработать оконное приложение на базе MFC
+The main window should contain a tree (TreeView) in the left part, it should be filled from a text file selected by the user.
 
-Основное окно должно содержать в левой части дерево (TreeView), должно заполняться из текстового файла, выбираемого пользователем.
-
-Формат входных данных:
+Input data format:
 
 "id":"pId":"caption":"status":"message"
 
 где
-- id - глобальный идентификатор
-- pId - id родительской ноды
-- caption - название в дереве
-- status - статус ноды 
-- message - текст
-По двойному щелчку должен выводиться Message Box, содержащий message из ноды
+- id - global identifier
+- pId - id of parent node
+- caption - caption in the tree
+- status - node status 
+- message - text
 
-Если нода не активна (status = 0), то это указывается в названии ноды и при 
-двойном щелчке Message Box не выводится 
+By double-clicking, a MessageBox containing a message from the node should be output
 
-Пример файла:
+If the node is not active (status = 0), then this is indicated in the name of the node and
+the MessageBox is not output when double-clicking 
+
+Example:
 
 -0:(-1):CAP0:1:MESSAGE-0
 
@@ -33,7 +32,7 @@
 
 -5:0:CAP12:1:MESSAGE-12
 
-Задание выполнено по стандарту С++17, в папке TestEx лежит два файла формата txt, для проверки работоспособности
+The task was performed according to the C++17 standard, there are two txt files in the TestEx folder to check the operability
 
 ![image](https://user-images.githubusercontent.com/94742842/172691627-2f7ebcee-bca7-4428-9f98-45f4db1a34ad.png)
 
